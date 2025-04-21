@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 8cb61d34e8e1
+Revision ID: 38782e102da9
 Revises: 
-Create Date: 2025-04-18 14:55:50.013407
+Create Date: 2025-04-21 15:08:48.685284
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '8cb61d34e8e1'
+revision: str = '38782e102da9'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -42,7 +42,7 @@ def upgrade() -> None:
     op.create_table('products',
     sa.Column('id', sa.BigInteger(), nullable=False),
     sa.Column('shop_id', sa.Integer(), nullable=False),
-    sa.Column('product_type', sa.Enum('OTHER', 'DAIRY_EGGS', 'VEGETABLES_FRUITS', 'BAKERY', 'GROCERY_SAUCES', 'MEAT', 'FISH', 'SWEETS', 'TEA_COFFEE', 'DRINKS', 'SNACKS_NUTS', 'CHEMISTRY', name='producttypes'), nullable=False),
+    sa.Column('product_type', sa.Enum('OTHER', 'DAIRY_EGGS', 'VEGETABLES_FRUITS', 'BAKERY', 'GROCERY_SAUCES', 'MEAT', 'FISH', 'SWEETS', 'TEA_COFFEE', 'DRINKS', 'SNACKS_NUTS', 'CHEMISTRY', 'ALCO', name='producttypes'), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('price', sa.Float(), nullable=False),
     sa.Column('discount', sa.Integer(), nullable=False),

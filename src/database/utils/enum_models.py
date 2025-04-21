@@ -21,3 +21,4 @@ class ProductTypes(int, Enum):
     DRINKS = 9
     SNACKS_NUTS = 10
     CHEMISTRY = 11
+    ALCO = 12
