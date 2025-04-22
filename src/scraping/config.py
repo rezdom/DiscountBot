@@ -1,7 +1,10 @@
 from src.database.utils.enum_models import ProductTypes
+import time
 
 MAGNIT_URL_API = "https://magnit.ru/webgate/v2/goods/search"
 MAGNIT_GET_STORES_URL = "https://magnit.ru/webgate/v1/store-search/geo"
+PYAT_GET_STORE_URL = "https://5d.5ka.ru/api/orders/v1/orders/stores/?lon={}&lat={}"
+PYAT_GET_PRODUCT_URL = "https://5d.5ka.ru/api/catalog/v2/stores/{}/categories/{}/products?mode=delivery&include_restrict=true&limit=499"
 
 MAGNIT_PRODUCT_PAYLOAD = {
     "sort": {
@@ -35,6 +38,52 @@ MAGNIT_MAP_PAYLOAD = {
         5
     ]
 }
+
+import random
+
+USER_AGENTS = [
+    # Chrome (Windows/Mac/Linux)
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+    
+    # Firefox
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 13.5; rv:109.0) Gecko/20100101 Firefox/119.0',
+    
+    # Safari
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15',
+    
+    # Edge
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
+    
+    # Mobile (Android/iOS)
+    'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1',
+    
+    # Advanced
+    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Vivaldi/6.2',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 OPR/105.0.0.0',
+    
+    # Old version
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0',
+    
+    # Linux/non standart
+    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0',
+    'Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+]
+
+def get_random_headers():
+    return random.choice(USER_AGENTS), {
+        "accept": "application/json, text/plain, */*",
+        "accept-language": "ru,en;q=0.9",
+        "origin": "https://5ka.ru",
+        "referer": "https://5ka.ru/",
+        "x-app-version": "0.1.1.dev",
+        "x-device-id": "30ae88e7-193c-4e6e-af3e-c74864261bce",
+        "x-platform": "webapp",
+    }
 
 MAGNIT_TYPES = {
     ProductTypes.ALCO: [
@@ -107,6 +156,22 @@ MAGNIT_TYPES = {
         [28475, 44665, 44669, 44675, 44673, 44679, 44681, 44683, 44677, 44671, 44975, 45063, 45065, 44685, 40307, 40337,
          40311, 40303, 40309, 40299, 46105, 40341, 51043, 60213, 61157, 46047, 40301, 40305, 61073, 61349],
     ]
+}
+
+PYATOROCHKA_TYPES = {
+    ProductTypes.OTHER: ["251C12884", "251C12903", "251C12905", "251C12906", "251C12907", "251C12910"],
+    ProductTypes.VEGETABLES_FRUITS: ["251C12886", ],
+    ProductTypes.DAIRY_EGGS: ["251C12887", ],
+    ProductTypes.BAKERY: ["251C12888", ],
+    ProductTypes.MEAT: ["251C12889", ],
+    ProductTypes.FISH: ["251C12890", ],
+    ProductTypes.SWEETS: ["251C12900", ],
+    ProductTypes.SNACKS_NUTS: ["251C12901", ],
+    ProductTypes.GROCERY_SAUCES: ["251C12902", ],
+    ProductTypes.DRINKS: ["251C12904", ],
+    ProductTypes.CHEMISTRY: ["251C12908", "251C12909", ],
+    ProductTypes.ALCO: ["251C13047", ],
+    ProductTypes.TEA_COFFEE: ["251C13057", ]
 }
 
 def payloads(store_code: str, new_payload: dict = MAGNIT_PRODUCT_PAYLOAD):

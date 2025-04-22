@@ -1,10 +1,9 @@
 from httpx import AsyncClient
 from geopy.distance import geodesic
-from asyncio import run
 
 from src.scraping.config import payloads, MAGNIT_URL_API, MAGNIT_GET_STORES_URL, MAGNIT_MAP_PAYLOAD
-from src.database.utils.enum_models import ProductTypes, MarketGroups
-from src.database.orm import AsyncProductOrm, AsyncSklepOrm
+from src.database.utils.enum_models import ProductTypes
+from src.database.orm import AsyncProductOrm
 from src.scraping.geo import get_map_box
 
 def data_generation(store_id: int, product_type: ProductTypes,row_data: dict):
@@ -50,10 +49,3 @@ async def get_data(store_id: int ,store_code: str, url: str = MAGNIT_URL_API):
                 data = []
             else:
                 print(f"get_stores Error: {response.status_code}")
-
-async def main():
-    await AsyncSklepOrm.add_sklep(MarketGroups.MAGNIT, "160218", "lol kek cheburek")
-    await get_data(1, "160218")
-    
-if __name__ == "__main__":
-    run(main())
