@@ -62,8 +62,8 @@ class AsyncSklepOrm:
         flag = False
         async with async_session() as session:
             stmt = select(Sklep).where(Sklep.shop_id==shop_id)
-            sklep = (await session.scalars(stmt)).one()
-            if sklep.created_at < datetime.datetime.now() - datetime.timedelta(days=7):
+            sklep = (await session.scalars(stmt)).one_or_none()
+            if sklep and sklep.created_at < datetime.datetime.now() - datetime.timedelta(days=7):
                 flag = True
         return flag
     
@@ -90,3 +90,14 @@ class AsyncProductOrm:
         async with async_session() as session:
             await session.execute(stmt)
             await session.commit()
+    
+    @staticmethod
+    async def get_products(sklep_id: int, product_type:ProductTypes, discount: int):
+        async with async_session() as session:
+            stmt = select(Product).where(
+                (Product.shop_id == sklep_id) &
+                (Product.product_type == product_type) &
+                (Product.discount >= discount)
+            )
+            products_list = (await session.scalars(stmt)).all()
+            return products_list

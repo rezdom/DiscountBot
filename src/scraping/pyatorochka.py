@@ -1,10 +1,11 @@
-from asyncio import sleep
+from asyncio import sleep, run
 from playwright.async_api import async_playwright
 import json
 
 from src.scraping.config import get_random_headers, PYAT_GET_STORE_URL, PYAT_GET_PRODUCT_URL, PYATOROCHKA_TYPES
 from src.database.utils.enum_models import ProductTypes, MarketGroups
 from src.database.orm import AsyncProductOrm
+from src.scraping.geo import get_address_info
 
 def data_generation(store_id: int, product_type: ProductTypes, row_data: dict):
         data = []
@@ -35,7 +36,6 @@ async def get_store(lat: float, long: float):
         url = PYAT_GET_STORE_URL.format(long, lat)
         response = await page.goto(url)
         raw = await response.text()
-
         try:
             data = json.loads(raw)
         except json.JSONDecodeError:
@@ -70,3 +70,11 @@ async def get_data(store_id: int, store_code: str):
                 except json.JSONDecodeError:
                     print("❌ Не удалось распарсить JSON")
                 await page.close()
+
+async def main():
+    location = await get_address_info("Бугульма, улица Сосновая, 2")
+    result = await get_store(location.latitude, location.longitude)
+    print(result)
+
+if __name__ == "__main__":
+    run(main())

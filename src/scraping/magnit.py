@@ -35,7 +35,7 @@ async def get_stores(lat: float, long: float, url: str = MAGNIT_GET_STORES_URL):
             data = [(item["address"], item["code"], round(geodesic((lat, long), (item["coordinates"]["latitude"], item["coordinates"]["longitude"])).kilometers, 3)) for item in raw_stores]    
         else:
             print(f"get_stores Error: {response.status_code}")
-    sorted_data = sorted(data, key=lambda x: x[1])
+    sorted_data = sorted(data, key=lambda x: x[2])
     return sorted_data[:3]
 
 async def get_data(store_id: int ,store_code: str, url: str = MAGNIT_URL_API):
