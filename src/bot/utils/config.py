@@ -6,3 +6,4 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env.bot")
 
 settings = Settings()
+ADMIN_LIST = (5212285040,)

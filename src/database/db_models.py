@@ -1,4 +1,4 @@
-from sqlalchemy import text, ForeignKey, BigInteger, Enum
+from sqlalchemy import text, ForeignKey, BigInteger, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 
@@ -11,7 +11,7 @@ class User(Base):
 
     id: Mapped[intpk]
     telegram_username: Mapped[str]
-    telegram_id: Mapped[int]
+    telegram_id: Mapped[int] = mapped_column(BigInteger())
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.USER)
     created_at: Mapped[datetime] = mapped_column(server_default=text("TIMEZONE('utc-3', now())"))
     update_at: Mapped[datetime] = mapped_column(
@@ -38,3 +38,11 @@ class Product(Base):
     name: Mapped[str]
     price: Mapped[float]
     discount: Mapped[int]
+
+class Report(Base):
+    __tablename__ = "reports"
+
+    id: Mapped[intpk]
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    telegram_id: Mapped[int] = mapped_column(BigInteger())
+    report: Mapped[str] = mapped_column(String(1024), nullable=False)

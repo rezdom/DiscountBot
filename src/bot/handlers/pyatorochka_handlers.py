@@ -30,27 +30,34 @@ def format_page(products: list[Product], offset: int, per_page = 5):
 @router.message(F.text=='5️⃣ПЯТЕРОЧКА', StateFilter(GeneralState.start))
 async def get_address(message: Message, state: FSMContext):
     await state.set_state(PyatorochkaState.waiting_input_address)
-    await state.update_data(store_type=MarketGroups.MAGNIT)
+    await state.update_data(store_type=MarketGroups.PYATOROCHKA)
     await message.answer("Выбери режим отправки данных, чтобы начать работу!",
                    reply_markup=gk.get_location)
 
 @router.message(F.location, StateFilter(PyatorochkaState.waiting_input_address))
 async def get_sklep(message: Message, state: FSMContext):
-    await state.set_state(PyatorochkaState.input_discount)
     data = await state.get_data()
     location = message.location
     store = await get_store(lat=location.latitude, long=location.longitude)
-    print(store)
-    await state.update_data(store=store)
-    sklep = await AsyncSklepOrm.get_sklep(store.get("shop_address"))
-    if not sklep or (await AsyncSklepOrm.get_update_sklep(store.get("sap_code"))):
-        if (await AsyncSklepOrm.get_update_sklep(store.get("sap_code"))):
-            await AsyncSklepOrm.del_sklep(store.get("sap_code"))
-        sklep = await AsyncSklepOrm.add_sklep(data.get("store_type"), store.get("sap_code"), store.get("shop_address"))
-        await get_data(sklep.id, sklep.shop_id)
-    await message.answer(f"Ближайший к тебе магазин: {store.get("shop_address")}\n"\
-                                "Введи скидку от 0% до 100%(Просто число)\n" \
-                                "Будут выбраны товары от n% до 100%")
+    bot_message = await message.answer("Идет выгрузка данных, ожидайте...")
+    if store.get("sap_code", None):
+        await state.set_state(PyatorochkaState.input_discount)
+        await state.update_data(store=store)
+        sklep = await AsyncSklepOrm.get_sklep(store.get("shop_address"))
+        if not sklep or (await AsyncSklepOrm.get_update_sklep(store.get("sap_code"))):
+            if (await AsyncSklepOrm.get_update_sklep(store.get("sap_code"))):
+                await AsyncSklepOrm.del_sklep(store.get("sap_code"))
+            sklep = await AsyncSklepOrm.add_sklep(data.get("store_type"), store.get("sap_code"), store.get("shop_address"))
+            await get_data(sklep.id, sklep.shop_id)
+        await bot_message.edit_text(f"Ближайший к тебе магазин: {store.get("shop_address")}\n"\
+                                    "Введи скидку от 0% до 100%(Просто число)\n" \
+                                    "Будут выбраны товары от n% до 100%")
+    else:
+        await state.set_state(default_state)
+        await state.set_state(GeneralState.start)
+        await bot_message.edit_text(f"Проблема получения данных о магазине пятерочки.\n"\
+                             "Попробуй позже!\n"\
+                                "Теперь ты в главном меню!", reply_markup=gk.main_menu_client)
 
 @router.message(F.text=="Ввести данные вручную", StateFilter(PyatorochkaState.waiting_input_address))
 async def input_address(message: Message, state: FSMContext):
@@ -66,21 +73,32 @@ async def input_address(message: Message, state: FSMContext):
 
 @router.message(F.text, StateFilter(PyatorochkaState.input_address))
 async def get_map(message: Message, state: FSMContext):
-    await state.set_state(PyatorochkaState.input_discount)
     data = await state.get_data()
     location = await get_address_info(message.text)
-    store = await get_store(lat=location.latitude, long=location.longitude)
-    await state.update_data(store=store)
-    sklep = await AsyncSklepOrm.get_sklep(store.get("shop_address"))
-    if not sklep or (await AsyncSklepOrm.get_update_sklep(store.get("sap_code"))):
-        if (await AsyncSklepOrm.get_update_sklep(store.get("sap_code"))):
-            await AsyncSklepOrm.del_sklep(store.get("sap_code"))
-        sklep = await AsyncSklepOrm.add_sklep(data.get("store_type"), store.get("sap_code"), store.get("shop_address"))
-        await get_data(sklep.id, sklep.shop_id)
-    await state.update_data(sklep_id=sklep.id)
-    await message.answer(f"Ближайший к тебе магазин: {store.get("shop_address")}\n"\
-                                "Введи скидку от 0% до 100%(Просто число)\n" \
-                                "Будут выбраны товары от n% до 100%")
+    if location:
+        bot_message = await message.answer("Идет выгрузка данных, ожидайте...")
+        store = await get_store(lat=location.latitude, long=location.longitude)
+        if store.get("sap_code", None):
+            await state.set_state(PyatorochkaState.input_discount)
+            await state.update_data(store=store)
+            sklep = await AsyncSklepOrm.get_sklep(store.get("shop_address"))
+            if not sklep or (await AsyncSklepOrm.get_update_sklep(store.get("sap_code"))):
+                if (await AsyncSklepOrm.get_update_sklep(store.get("sap_code"))):
+                    await AsyncSklepOrm.del_sklep(store.get("sap_code"))
+                sklep = await AsyncSklepOrm.add_sklep(data.get("store_type"), store.get("sap_code"), store.get("shop_address"))
+                await get_data(sklep.id, sklep.shop_id)
+            await state.update_data(sklep_id=sklep.id)
+            await bot_message.edit_text(f"Ближайший к тебе магазин: {store.get("shop_address")}\n"\
+                                        "Введи скидку от 0% до 100%(Просто число)\n" \
+                                        "Будут выбраны товары от n% до 100%")
+        else:
+            await state.set_state(default_state)
+            await state.set_state(GeneralState.start)
+            await bot_message.edit_text(f"Проблема получения данных о магазине пятерочки (Проблема парсинга или рядом с тобой нет магазинов).\n"\
+                                "Попробуй позже!\n"\
+                                    "Теперь ты в главном меню!", reply_markup=gk.main_menu_client)
+    else:
+        await message.answer(f"Видимо ты ввел что-то не так, попробуй еще раз!")
 
 @router.message(StateFilter(PyatorochkaState.input_discount), F.text)
 async def get_discount(message: Message, state: FSMContext):

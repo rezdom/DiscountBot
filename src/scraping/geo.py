@@ -2,6 +2,8 @@ from geopy.geocoders import Nominatim
 from asyncio import run, to_thread
 
 async def get_address_info(address: str):
+    for item in ["Дом", "дом"]:
+        address = address.replace(item, "")
     geolocator = Nominatim(user_agent="discount_bot")
     location = await to_thread(geolocator.geocode, address)
     return location
@@ -18,7 +20,7 @@ def get_map_box(latitude: float, longitude: float):
     }
 
 async def main():
-    location = await get_address_info("Бугульма улица Сосновая,  2")
+    location = await get_address_info("asfdsfasdfsaf")
     print(location)
 
 if __name__ == "__main__":

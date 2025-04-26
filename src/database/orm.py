@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy import insert, select
 
-from src.database.db_models import User, Sklep, Product
+from src.database.db_models import User, Sklep, Product, Report
 from src.database.db import async_session
 from src.database.utils.enum_models import UserRole, MarketGroups, ProductTypes
 
@@ -14,6 +14,12 @@ class AsyncUserOrm:
             await session.commit()
             await session.refresh(new_user)
             return new_user
+    
+    @staticmethod
+    async def get_user(user_id: int):
+        async with async_session() as session:
+            stmt = select(User).where(User.telegram_id==user_id)
+            return (await session.scalars(stmt)).one_or_none()
     
     @staticmethod
     async def to_admin(user_id: int):
@@ -101,3 +107,31 @@ class AsyncProductOrm:
             )
             products_list = (await session.scalars(stmt)).all()
             return products_list
+
+class AsyncReportOrm:
+    @staticmethod
+    async def add_report(user_id: int, telegram_id:int, report: str):
+        new_report = Report(user_id=user_id, report=report, telegram_id=telegram_id)
+        async with async_session() as session:
+            session.add(new_report)
+            await session.commit()
+            await session.refresh(new_report)
+            return new_report
+    
+    @staticmethod
+    async def pop_report():
+        stmt = select(Report).order_by(Report.id.desc())
+        async with async_session() as session:
+            last_report = (await session.scalars(stmt)).first()
+
+            if last_report:
+                await session.delete(last_report)
+                await session.commit()
+
+            return last_report
+    
+    @staticmethod
+    async def get_len_reports():
+        stmt = select(Report)
+        async with async_session() as session:
+            return len((await session.scalars(stmt)).all())

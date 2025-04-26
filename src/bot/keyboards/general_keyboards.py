@@ -27,6 +27,18 @@ main_menu_client = ReplyKeyboardMarkup(
     keyboard=[
     [KeyboardButton(text="🔴МАГНИТ")],
     [KeyboardButton(text="5️⃣ПЯТЕРОЧКА")],
+    [KeyboardButton(text="Report")],
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True,
+    input_field_placeholder="Выбери пункт меню..."
+)
+adm_kb = ReplyKeyboardMarkup(
+    keyboard=[
+    [KeyboardButton(text="Назначить админом")],
+    [KeyboardButton(text="Бан"), KeyboardButton(text="Разбан")],
+    [KeyboardButton(text="Обращения пользователей")],
+    [KeyboardButton(text="Главное меню")],
     ],
     resize_keyboard=True,
     one_time_keyboard=True,
@@ -47,9 +59,9 @@ get_location = ReplyKeyboardMarkup(
 def get_select_store(store1: tuple, store2: tuple, store3:tuple):
     select_store = InlineKeyboardMarkup(
         inline_keyboard=[
-        [InlineKeyboardButton(text=f"🏪{store1[0]}: {store1[2]} km", callback_data="store_0")],
-        [InlineKeyboardButton(text=f"🏪{store2[0]}: {store2[2]} km", callback_data="store_1")],
-        [InlineKeyboardButton(text=f"🏪{store3[0]}: {store3[2]} km", callback_data="store_2")],
+        [InlineKeyboardButton(text=f"{store1[2]}km: {','.join(store1[0].split(',')[-3:])}", callback_data="store_0")],
+        [InlineKeyboardButton(text=f"{store2[2]}km: {','.join(store2[0].split(',')[-3:])}", callback_data="store_1")],
+        [InlineKeyboardButton(text=f"{store3[2]}km: {','.join(store3[0].split(',')[-3:])}", callback_data="store_2")],
         ]
     )
     return select_store

@@ -36,12 +36,19 @@ async def get_address(message: Message, state: FSMContext):
 
 @router.message(F.location, StateFilter(MagnitStates.waiting_input_address))
 async def get_map(message: Message, state: FSMContext):
-    await state.set_state(MagnitStates.select_store)
     location = message.location
     stores = await get_stores(lat=location.latitude, long=location.longitude)
-    await state.update_data(stores=stores)
-    await message.answer("Выбери подходящий тебе магазин:",
-                         reply_markup=gk.get_select_store(*stores))
+    if stores:
+        await state.set_state(MagnitStates.select_store)
+        await state.update_data(stores=stores)
+        await message.answer("Выбери подходящий тебе магазин:",
+                            reply_markup=gk.get_select_store(*stores))
+    else:
+        await state.set_data(default_state)
+        await state.set_data(GeneralState.start)
+        await message.answer(f"Проблема получения данных о магазине магнита (Проблема парсинга или рядом с тобой нет магазинов).\n"\
+                             "Попробуй позже!\n"\
+                                "Теперь ты в главном меню!", reply_markup=gk.main_menu_client)
 
 @router.message(F.text=="Ввести данные вручную", StateFilter(MagnitStates.waiting_input_address))
 async def input_address(message: Message, state: FSMContext):
@@ -57,15 +64,27 @@ async def input_address(message: Message, state: FSMContext):
 
 @router.message(F.text, StateFilter(MagnitStates.input_address))
 async def get_map(message: Message, state: FSMContext):
-    await state.set_state(MagnitStates.select_store)
     location = await get_address_info(message.text)
-    stores = await get_stores(lat=location.latitude, long=location.longitude)
-    await state.update_data(stores=stores)
-    await message.answer("Выбери подходящий тебе магазин:",
-                         reply_markup=gk.get_select_store(*stores))
+    if location:
+        stores = await get_stores(lat=location.latitude, long=location.longitude)
+        if stores:
+            await state.set_state(MagnitStates.select_store)
+            await state.update_data(stores=stores)
+            await message.answer("Выбери подходящий тебе магазин:",
+                                reply_markup=gk.get_select_store(*stores))
+        else:
+            await state.set_data(default_state)
+            await state.set_data(GeneralState.start)
+            await message.answer(f"Проблема получения данных о магазине магнита (Проблема парсинга или рядом с тобой нет магазинов).\n"\
+                                "Попробуй позже!\n"\
+                                    "Теперь ты в главном меню!", reply_markup=gk.main_menu_client)
+    else:
+        await message.answer(f"Видимо ты ввел что-то не так, попробуй еще раз!")
+
 
 @router.callback_query(StateFilter(MagnitStates.select_store), F.data.startswith("store"))
 async def get_store(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text("Идет выгрузка данных, ожидайте...")
     data = await state.get_data()
     store = data.get("stores")[int(callback.data[-1])]
     await state.set_state(MagnitStates.input_discount)
@@ -132,7 +151,6 @@ async def paginate_products(callback: CallbackQuery, state: FSMContext):
     products = user_products.get(user_id, [])
     message_text, reply_markup = format_page(products, offset)
 
-    # Обновляем offset
     await state.update_data(offset=offset)
 
     await callback.message.edit_text(message_text, parse_mode="HTML", reply_markup=reply_markup)
