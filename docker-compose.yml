@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:13
+    container_name: pg_table_discount
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 1234:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  bot:
+    build: .
+    container_name: telegram_discount
+    depends_on:
+      postgres:
+        condition: service_healthy

@@ -16,7 +16,7 @@ async def set_admin_role(message:Message, state: FSMContext):
     await message.answer("Введи id пользователья, которого хочешь назначить админом")
 
 @router.message(StateFilter(AdminStates.input_admin), F.text)
-async def set_admin_role(message:Message, state: FSMContext):
+async def input_admin(message:Message, state: FSMContext):
     if not message.text.isnumeric():
         await message.answer(f"Введи id пользователя!", reply_markup=general_kb.adm_kb)
         return
@@ -28,12 +28,12 @@ async def set_admin_role(message:Message, state: FSMContext):
         await message.answer(f"Пользователь c telegram_id:{message.text} не найден!", reply_markup=general_kb.adm_kb)
 
 @router.message(StateFilter(GeneralState.admin), F.text=="Бан")
-async def set_admin_role(message:Message, state: FSMContext):
+async def set_ban(message:Message, state: FSMContext):
     await state.set_state(AdminStates.input_ban)
     await message.answer("Введи id пользователья, которого хочешь забанить")
 
 @router.message(StateFilter(AdminStates.input_ban), F.text)
-async def set_admin_role(message:Message, state: FSMContext):
+async def input_ban(message:Message, state: FSMContext):
     if not message.text.isnumeric():
         await message.answer(f"Введи id пользователя!", reply_markup=general_kb.adm_kb)
         return
@@ -45,12 +45,12 @@ async def set_admin_role(message:Message, state: FSMContext):
         await message.answer(f"Пользователь c telegram_id:{message.text} не найден!", reply_markup=general_kb.adm_kb)
 
 @router.message(StateFilter(GeneralState.admin), F.text=="Разбан")
-async def set_admin_role(message:Message, state: FSMContext):
+async def set_unban(message:Message, state: FSMContext):
     await state.set_state(AdminStates.input_unban)
     await message.answer("Введи id пользователья, которого хочешь разбанить")
 
 @router.message(StateFilter(AdminStates.input_unban), F.text)
-async def set_admin_role(message:Message, state: FSMContext):
+async def input_unban(message:Message, state: FSMContext):
     if not message.text.isnumeric():
         await message.answer(f"Введи id пользователя!", reply_markup=general_kb.adm_kb)
         return
@@ -70,7 +70,7 @@ async def get_report(message: Message, state: FSMContext):
         await message.answer(f"Сейчас обращений нет!")
 
 @router.message(StateFilter(GeneralState.admin), F.text=="Главное меню")
-async def set_admin_role(message:Message, state: FSMContext):
+async def back_to_main_menu(message:Message, state: FSMContext):
     await state.set_state(default_state)
     await state.set_state(GeneralState.start)
     await message.answer("Добро пожаловать в главное меню! Выбери магазин:",

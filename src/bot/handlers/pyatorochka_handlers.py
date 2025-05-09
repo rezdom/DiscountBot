@@ -35,7 +35,7 @@ async def get_address(message: Message, state: FSMContext):
                    reply_markup=gk.get_location)
 
 @router.message(F.location, StateFilter(PyatorochkaState.waiting_input_address))
-async def get_sklep(message: Message, state: FSMContext):
+async def get_store_address(message: Message, state: FSMContext):
     data = await state.get_data()
     location = message.location
     store = await get_store(lat=location.latitude, long=location.longitude)
@@ -65,14 +65,14 @@ async def input_address(message: Message, state: FSMContext):
     await message.answer(INPUT_ADDRESS, parse_mode="HTML")
 
 @router.message(F.text=="Главное меню", StateFilter(PyatorochkaState.waiting_input_address))
-async def input_address(message: Message, state: FSMContext):
+async def back_to_main_menu(message: Message, state: FSMContext):
     await state.set_state(default_state)
     await state.set_state(GeneralState.start)
     await message.answer("Добро пожаловать в главное меню! Выбери магазин:",
                          reply_markup=gk.main_menu_client)
 
 @router.message(F.text, StateFilter(PyatorochkaState.input_address))
-async def get_map(message: Message, state: FSMContext):
+async def get_store_address(message: Message, state: FSMContext):
     data = await state.get_data()
     location = await get_address_info(message.text)
     if location:
@@ -117,7 +117,7 @@ async def get_discount(message: Message, state: FSMContext):
                              "Попробуй ещё раз:")
 
 @router.callback_query(F.data.in_([str(item.value) for item in ProductTypes]), StateFilter(PyatorochkaState.select_type))
-async def get_product_list(callback: CallbackQuery, state:FSMContext):
+async def load_product_list(callback: CallbackQuery, state:FSMContext):
     product_type = ProductTypes(int(callback.data))
     await state.update_data(product_type=product_type)
     await state.set_state(PyatorochkaState.pages_list)
@@ -157,7 +157,7 @@ async def paginate_products(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(message_text, parse_mode="HTML", reply_markup=reply_markup)
 
 @router.callback_query(F.data.in_(["menu"]), StateFilter(PyatorochkaState.pages_list))
-async def to_select_products(callback: CallbackQuery, state: FSMContext):
+async def to_select_type(callback: CallbackQuery, state: FSMContext):
     user_products.pop(callback.message.from_user.id, None)
     await state.set_state(PyatorochkaState.select_type)
     await callback.message.edit_text("Теперь выбери тип товара:", reply_markup=gk.product_types)

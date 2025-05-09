@@ -24,6 +24,7 @@ async def setup_middlewares(dp: Dispatcher):
 async def main():
     await setup_middlewares(dp)
     await dp.start_polling(bot)
+    print("✅I'm ready for work")
 
 if __name__ == "__main__":
     run(main())

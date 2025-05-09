@@ -37,7 +37,7 @@ async def create_report(message: Message, state: FSMContext):
     await message.answer("Распишите свою проблему как можно подробнее (Не более 1024 символов)")
 
 @router.message(F.text, StateFilter(GeneralState.create_report))
-async def create_report(message: Message, state: FSMContext):
+async def input_report(message: Message, state: FSMContext):
     user = await AsyncUserOrm.get_user(message.from_user.id)
     if len(message.text) < 1024:
         report = await AsyncReportOrm.add_report(user.id, user.telegram_id, message.text)
