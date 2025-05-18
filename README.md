@@ -77,7 +77,6 @@ python -m src.main
 
 - View and process support tickets
 
-<!-- SCREENSHOT: Add admin panel screenshot here -->
 ## 🗄 Database Structure
 ### Main tables:
 
@@ -91,7 +90,6 @@ python -m src.main
 
 Migrations are handled via **Alembic**.
 
-<!-- SCREENSHOT: Consider adding ER diagram here if available -->
 
 # 📞 Contact
 ### For support or collaboration:
