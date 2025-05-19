@@ -47,8 +47,8 @@ async def get_stores_location(message: Message, state: FSMContext):
         await state.set_data(default_state)
         await state.set_data(GeneralState.start)
         await message.answer(f"Проблема получения данных о магазине магнита (Проблема парсинга или рядом с тобой нет магазинов).\n"\
-                             "Попробуй позже!\n"\
-                                "Теперь ты в главном меню!", reply_markup=gk.main_menu_client)
+                             "Попробуй позже!\n")
+        await message.answer("Теперь ты в главном меню!", reply_markup=gk.main_menu_client)
 
 @router.message(F.text=="Ввести данные вручную", StateFilter(MagnitStates.waiting_input_address))
 async def input_address(message: Message, state: FSMContext):
