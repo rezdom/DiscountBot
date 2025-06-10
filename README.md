@@ -21,6 +21,10 @@
 - **Geopy** (geocoding and distance calculations)
 - **Docker** (containerization)
 
+## Video DEMO
+
+[![Watch video](https://img.youtube.com/vi/GTC6GumnZME/maxresdefault.jpg)](https://www.youtube.com/watch?v=GTC6GumnZME)
+
 ## 📦 Installation
 
 ### Prerequisites
@@ -33,10 +37,19 @@
 git clone https://github.com/yourusername/hypermarket-price-tracker.git
 cd hypermarket-price-tracker
 ```
-#### 2. Create .env.bot file:
+#### 2. Create .env files:
 ```bash
 # .env.bot
 TOKEN = your_telegram_bot_token
+```
+
+```bash
+# .env
+DB_HOST = your_host_for_db
+DB_PORT = your_port_for_db
+DB_USER = your_user_for_db
+DB_PASS = your_password_for_db
+DB_NAME = your_db_name
 ```
 
 #### 3. Run with Docker Compose and local development:
@@ -65,7 +78,7 @@ python -m src.main
 
 5. Bot shows current prices and discounts
 
-<!-- SCREENSHOT: Add conversation flow screenshot here -->
+![demo](screenshots/demo_tg.png)
 ### Additional Features:
 #### 📩 Support ticket system (stored in separate table)
 
